@@ -1,42 +1,40 @@
 # ETL Server Access Log Processing DAG
 
-This is a simple Airflow Directed Acyclic Graph (DAG) for processing server access logs using an Extract-Transform-Load (ETL) pipeline. The DAG schedules the execution of a Bash script to perform the ETL process.
+This Airflow Directed Acyclic Graph (DAG) processes server access logs using an Extract-Transform-Load (ETL) pipeline. The pipeline downloads a server access log file, extracts relevant data, transforms it, and then loads the transformed data into a zip file.
 
 ## Overview
 
-The DAG consists of a single task called `extract_transform_and_load`, which executes a Bash script (`ETL_Server_Access_Log_Processing.sh`) responsible for extracting, transforming, and loading server access log data.
+This DAG consists of four tasks: `download`, `extract`, `transform`, and `load`. Each task performs a specific step in the ETL process.
 
 ## DAG Configuration
 
 The DAG is configured with the following properties:
 
-- **Owner**: Selase
+- **Owner**: Selase Perry
 - **Start Date**: The DAG's start date is set to the current date.
-- **Email**: Email notifications are sent to `ramesh@somemail.com` on task failure.
+- **Email**: Email notifications are sent to `psterlings@gmail.com` on task failure.
 - **Retries**: The DAG retries a failed task once.
 - **Retry Delay**: The delay between task retries is set to 5 minutes.
 
 ## Task Details
 
-### `extract_transform_and_load`
+### `download`
 
-This task executes the `ETL_Server_Access_Log_Processing.sh` Bash script located at `/home/project/airflow/dags/`. The script is responsible for performing the ETL process on server access log data.
+This task downloads the server access log file from the specified URL.
 
-## DAG Execution Schedule
+### `extract`
 
-The DAG is scheduled to run once a day, starting from the `start_date` specified in the DAG configuration.
+This task extracts relevant data from the downloaded log file and saves it to a new file (`extracted.txt`).
 
-## Usage
+### `transform`
 
-To use this DAG:
+This task transforms the extracted data by converting lowercase letters to uppercase and saves the transformed data to another file (`capitalized.txt`).
 
-1. Place the `ETL_Server_Access_Log_Processing.sh` Bash script in the appropriate directory (`/home/project/airflow/dags/` in this example).
-2. Ensure that Airflow is properly configured and running.
-3. Copy the DAG definition into your Airflow DAGs directory.
-4. The DAG will automatically execute the ETL process according to the specified schedule.
+### `load`
 
-## Notes
+This task compresses the transformed data file (`capitalized.txt`) into a zip file (`log.zip`).
 
-- Ensure that the Bash script (`ETL_Server_Access_Log_Processing.sh`) contains the necessary logic for extracting, transforming, and loading server access log data.
-- Customize the DAG configuration and task parameters according to your requirements.
+## Task Dependencies
+
+The tasks are connected in a linear dependency chain, where each task depends on the successful completion of the preceding task:
 
